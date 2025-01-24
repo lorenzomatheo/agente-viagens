@@ -4,6 +4,7 @@ from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain import hub
 
+# Inicializa o modelo de linguagem
 llm = ChatOpenAI(model="gpt-3.5-turbo")
 
 # Configura a API do Wikipedia
@@ -12,19 +13,11 @@ wiki_api_wrapper = WikipediaAPIWrapper()
 # Define a ferramenta com o wrapper configurado
 tools = [WikipediaQueryRun(api_wrapper=wiki_api_wrapper)]
 
-# Carrega o prompt "react" do repositório hwchase17 utilizando o hub
 prompt = hub.pull("hwchase17/react")
 
 agent = create_react_agent(llm,tools, prompt)
 
 agent_executor = AgentExecutor(agent=agent,tools=tools,prompt=prompt,verbose=True)
-
-agent = initialize_agent(
-    tools,
-    llm,
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True
-)
 
 # Exemplo de uso do agente
 query = """
