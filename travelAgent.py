@@ -16,10 +16,10 @@ from langchain_core.runnables import RunnableSequence
 
 llm = ChatOpenAI(model="gpt-3.5-turbo")
 
-query= """
-Vou viajar para Londres em agosto de 2024.
-Quero que faça para um roteiro de viagem para mim com eventos que irão ocorrer na data da viagem e com o preço de passagem de São Paulo para Londres.
-"""
+#query= """
+#Vou viajar para Londres em agosto de 2024.
+#Quero que faça para um roteiro de viagem para mim com eventos que irão ocorrer na data da viagem e com o preço de passagem de São Paulo para Londres.
+#"""
 
 def researchAgent(query, llm):
   tools = load_tools(["ddg-search", "wikipedia"], llm=llm)
@@ -73,4 +73,9 @@ def getResponse(query, llm):
   response = supervisorAgent(query, llm, webContext, relevant_documents)
   return response
 
-print(getResponse(query, llm).content)
+ # print(getResponse(query, llm).content)
+
+def lambda_handler(event, context):
+  query = event.get("question")
+  response = getResponse(query, llm).content
+  return {"body": response, "status": 200}
