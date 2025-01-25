@@ -4,6 +4,8 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
 
+import json
+
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import Chroma
 import bs4
@@ -13,11 +15,13 @@ from langchain_core.prompts import PromptTemplate
 
 from langchain_core.runnables import RunnableSequence
 
+OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
+
 
 llm = ChatOpenAI(model="gpt-3.5-turbo")
 
 #query= """
-#Vou viajar para Londres em agosto de 2024.
+#Vou viajar para Londres em julho de 2025.
 #Quero que faça para um roteiro de viagem para mim com eventos que irão ocorrer na data da viagem e com o preço de passagem de São Paulo para Londres.
 #"""
 
@@ -76,6 +80,16 @@ def getResponse(query, llm):
  # print(getResponse(query, llm).content)
 
 def lambda_handler(event, context):
-  query = event.get("question")
+  body = json.loads(event.get('body', {}))
+  query = body.get('question','Parametro question nao fornecido')
   response = getResponse(query, llm).content
-  return {"body": response, "status": 200}
+  return {
+      "statusCode": 200,
+      "headers": {
+          "Content-Type": "application/json"
+      },
+      'body': json.dumps({
+          "message": "Tarefa concluída com sucesso"
+          "details": response
+      })
+      }
