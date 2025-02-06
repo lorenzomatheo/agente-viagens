@@ -20,20 +20,14 @@ OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
 
 llm = ChatOpenAI(model="gpt-3.5-turbo")
 
-#query= """
-#Vou viajar para Londres em julho de 2025.
-#Quero que faça para um roteiro de viagem para mim com eventos que irão ocorrer na data da viagem e com o preço de passagem de São Paulo para Londres.
-#"""
 
 def researchAgent(query, llm):
   tools = load_tools(["ddg-search", "wikipedia"], llm=llm)
   prompt = hub.pull("hwchase17/react")
   agent = create_react_agent(llm, tools, prompt)
-  agent_executor = AgentExecutor(agent=agent, tools=tools, prompt=prompt, verbose=True)
+  agent_executor = AgentExecutor(agent=agent, tools=tools, prompt=prompt)
   webContext = agent_executor.invoke({ "input": query })
   return webContext['output']
-
-# print(researchAgent(query, llm))
 
 def loadData():
   loader = WebBaseLoader(
@@ -77,8 +71,6 @@ def getResponse(query, llm):
   response = supervisorAgent(query, llm, webContext, relevant_documents)
   return response
 
- # print(getResponse(query, llm).content)
-
 def lambda_handler(event, context):
   body = json.loads(event.get('body', {}))
   query = body.get('question','Parametro question nao fornecido')
@@ -89,7 +81,7 @@ def lambda_handler(event, context):
           "Content-Type": "application/json"
       },
       'body': json.dumps({
-          "message": "Tarefa concluída com sucesso"
+          "message": "Tarefa concluída com sucesso",
           "details": response
       })
       }
